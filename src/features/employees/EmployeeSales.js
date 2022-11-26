@@ -1,32 +1,40 @@
 import {useState, useEffect} from 'react';
-import {useNavigate} from 'react-router-dom';
+import {useParams, useNavigate} from 'react-router-dom';
 import useAxiosPrivate from '../../hooks/useAxiosPrivate';
-import {useSelector} from 'react-redux';
-import {selectAuthUser} from '../../app/auth/authSlice';
 
 import MyMap from '../../components/MyMap';
 
-import {Tabs, Tab, Table, Badge, Form, Button, InputGroup} from 'react-bootstrap';
-import {MdOutlineAddTask, MdClose} from 'react-icons/md';
+import {Tabs, Tab, Badge, Table} from 'react-bootstrap';
 
+import {MdClose} from 'react-icons/md';
 import {toast} from 'react-toastify';
 
 import '../../styles/employee_management/employeeList.css';
 
-
-const MySalesList = () => {
+const EmployeeSales = () => {
 
     const navigate = useNavigate();
     const axiosPrivate = useAxiosPrivate();
-    const {id} = useSelector(selectAuthUser);
-
+    const {id} = useParams();
+    console.log(id);
+    // state
     const [orders, setOrders] = useState([]);
+    const [employee, setEmployee] = useState({});
     const [isMapViewModelOpen, setIsMapViewModelOpen] = useState(false);
     const [currentLocation, setCurrentLocation] = useState(null);
-    // const [] = useState('');
 
     useEffect(() => {
-        const getAllOrders = async () => {
+
+        const getEmployee = async () => {
+            try {
+                const response = await axiosPrivate.get(`/api/users/employee/${id}`);
+                setEmployee(response.data.employee);
+            } catch (err) {
+                console.log(err);
+            }
+        }
+
+        const getEmployeeSales = async () => {
             try {
                 const response = await axiosPrivate.get(`/api/orders/employee/my/sales/${id}`);
                 setOrders(response.data.orders);
@@ -34,7 +42,10 @@ const MySalesList = () => {
                 console.log(err);
             }
         }
-        getAllOrders();
+
+        getEmployee();
+        getEmployeeSales();
+
     }, [axiosPrivate, id]);
 
     const handleMapViewModelOpen = coordinates => {
@@ -45,63 +56,6 @@ const MySalesList = () => {
     const handleMapViewModelClose = () => {
         setIsMapViewModelOpen(false);
         setCurrentLocation(null);
-    }
-
-    const handleServiceOrderPriceUpdate = async (e, id) => {
-        const newPrice = +e.target.previousElementSibling.value;
-       
-        if(newPrice <= 0) {
-            toast.error('Invalid Price Value');
-            return;
-        }
-        
-        try {
-            await axiosPrivate.put(`/api/orders/online-service/employee/update/${id}?type=price`, JSON.stringify({price: newPrice}), {
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-            e.target.previousElementSibling.value = '';
-            const updatedOrders = orders.map(o => {
-                if(o.type === 'online-service' && o._id === id) {
-                    return {
-                        ...o,
-                        onlineServiceOrder: {
-                            ...o.onlineServiceOrder,
-                            price: newPrice
-                        }
-                    }
-                }
-                return o;
-            })
-            setOrders(updatedOrders);
-            toast.success('Service order price updated');
-        } catch (err) {
-            toast.error(err.response.data?.message);
-        }
-    }
-
-    const handleServiceOrderCompletion = async (id, val) => {
-        try {
-            const response = await axiosPrivate.put(`/api/orders/online-service/employee/update/${id}?type=${val}`);
-
-            const updatedOrders = orders.map(o => {
-                if(o.type === 'online-service' && o._id === id) {
-                    return {
-                        ...o,
-                        onlineServiceOrder: {
-                            ...o.onlineServiceOrder,
-                            status: val === 'accepted' ? 'accepted' : 'completed'
-                        }
-                    }
-                }
-                return o;
-            })
-            setOrders(updatedOrders);
-            toast.success(response.data.message);
-        } catch (err) {
-            toast.error(err.response.data?.message);
-        }
     }
 
     const handleInplaceOrderDelete = async id => {
@@ -137,9 +91,12 @@ const MySalesList = () => {
                 </>
             )}
 
-            <aside className='employeeList-header'>
-                <h1>My Sales Management</h1>
-                <button className='btn btn-primary' onClick={() => navigate('/dash/employee/sales-management/add')}>New Inplace Order<MdOutlineAddTask /></button>
+            <aside className='d-flex align-items-center justify-content-between'>
+                <div>
+                    <h1>{employee.employee?.firstName} {employee.employee?.lastName} Sales</h1>
+                    <p>Employee ID : {employee.userId}</p>
+                </div>
+                <button className='btn btn-primary' onClick={() => navigate('/dash/admin/employee-management')}>Employee Management</button>
             </aside>
 
             <hr></hr>
@@ -221,7 +178,7 @@ const MySalesList = () => {
                                             <div style={{width: '300px'}}>
                                                 <span>Price : {o.onlineServiceOrder?.price ?  `$ ${o.onlineServiceOrder?.price}` : 'Price not set yet'}</span>
                                                 <div className='py-2'>
-                                                    <InputGroup className="mb-3">
+                                                    {/* <InputGroup className="mb-3">
                                                         <Form.Control
                                                             placeholder="Enter new price"
                                                             aria-label="New price"
@@ -233,15 +190,16 @@ const MySalesList = () => {
                                                         <Button id="button-addon2" className='btn btn-primary' onClick={(e) => handleServiceOrderPriceUpdate(e, o._id)}>
                                                             Update
                                                         </Button>
-                                                    </InputGroup>
+                                                    </InputGroup> */}
                                                 </div>
                                             </div>
                                         </td>
                                         <td>
-                                            <select style={{width: '150px'}} value={o.onlineServiceOrder?.status === 'accepted' ? 'accepted' : 'completion'} onChange={e => handleServiceOrderCompletion(o._id, e.target.value)}>
+                                            {o.onlineServiceOrder?.status}
+                                            {/* <select style={{width: '150px'}} value={o.onlineServiceOrder?.status === 'accepted' ? 'accepted' : 'completion'} onChange={e => handleServiceOrderCompletion(o._id, e.target.value)}>
                                                 <option value='accepted'>Accepted</option>
                                                 <option value='completion'>Completed</option>
-                                            </select>
+                                            </select> */}
                                         </td>
                                         <td>
                                             <div className='d-flex align-items-center gap-2' style={{width: '250px'}}>
@@ -259,9 +217,9 @@ const MySalesList = () => {
                 </Tab>
 
             </Tabs>
-
+            
         </div>
     );
 }
 
-export default MySalesList;
+export default EmployeeSales;

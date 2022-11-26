@@ -56,13 +56,11 @@ const WarehouseList = () => {
     }
 
 
-
-
     const getAvailableQuantities = (colorVariation) => {
         const availables = [];
         for(let key in colorVariation) {
             const i = (
-                <li key={colorVariation[key]}>
+                <li key={key}>
                     <span style={{backgroundColor: key}}></span>
                     <p>{colorVariation[key]} available</p>
                 </li>
@@ -70,6 +68,22 @@ const WarehouseList = () => {
             availables.push(i)
         }
         return availables;
+    }
+
+    const handleProductDelete = async id => {
+        const isConfirmed = window.confirm(`Are You sure that you want to delete this product (${id})?`);
+
+        if(isConfirmed) {
+            // delete the product
+            try {
+                await axiosPrivate.delete(`/api/products/${id}`);
+                toast.success('Product deleted successfully');
+                // update the state
+                setProducts(products.filter(p => p._id !== id));
+            } catch (err) {
+                toast.error(err.response.data?.message);
+            }
+        }
     }
 
     return (
@@ -127,8 +141,9 @@ const WarehouseList = () => {
                                     <td><p className='warehouseList-row-item'>{p.supplier?.name}</p></td>
                                     <td>
                                         <div className='warehouseList-row-actions'>
+                                            <button className='btn btn-primary btn-sm' onClick={() => navigate(`/dash/product/${p._id}`)}>View</button>
                                             <button className='btn btn-success btn-sm' onClick={() => navigate(`/dash/warehouse-management/update?id=${p._id}`)}>Update</button>
-                                            <button className='btn btn-danger btn-sm'>Delete</button>
+                                            <button className='btn btn-danger btn-sm' onClick={() => handleProductDelete(p._id)}>Delete</button>
                                         </div>
                                     </td>
                                 </tr>

@@ -12,6 +12,9 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+// import ItemCard from './test/ItemCard';
+// import Profile from './test/Profile';
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
  

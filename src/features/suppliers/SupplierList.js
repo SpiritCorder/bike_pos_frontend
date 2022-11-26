@@ -4,6 +4,8 @@ import useAxiosPrivate from '../../hooks/useAxiosPrivate';
 import {MdPersonAdd} from 'react-icons/md';
 import {Table} from 'react-bootstrap';
 
+import {toast} from 'react-toastify';
+
 import '../../styles/employee_management/employeeList.css';
 
 const SupplierList = () => {
@@ -25,6 +27,22 @@ const SupplierList = () => {
 
         getAllSuppliers();
     }, [axiosPrivate]);
+
+    const handleSupplierDelete = async id => {
+
+        const isConfirmed = window.confirm('Are you sure that you want to delete this supplier?');
+
+        if(isConfirmed) {
+            try {
+                await axiosPrivate.delete(`/api/suppliers/${id}`);
+                toast.success('Supplier Deleted');
+                setSuppliers(suppliers.filter(s => s._id !== id));
+            } catch (err) {
+                console.log(err);
+                toast.error(err.response.data?.message);
+            }
+        }
+    }
 
     return (
         <div>
@@ -58,7 +76,7 @@ const SupplierList = () => {
                                     <div className='d-flex align-items-center gap-2'>
                                         <button className='btn btn-sm btn-primary'>Supplies</button>
                                         <button className='btn btn-sm btn-success' onClick={() => navigate(`/dash/admin/supplier-management/add?edit=true&id=${s._id}`)}>Update</button>
-                                        <button className='btn btn-sm btn-danger'>Delete</button>
+                                        <button className='btn btn-sm btn-danger' onClick={() => handleSupplierDelete(s._id)}>Delete</button>
                                     </div>
                                 </td>
                             </tr>

@@ -5,6 +5,8 @@ import useAxiosPrivate from '../../hooks/useAxiosPrivate';
 import {Table} from 'react-bootstrap';
 import {MdPersonAdd} from 'react-icons/md';
 
+import {toast} from 'react-toastify';
+
 import '../../styles/employee_management/employeeList.css';
 
 const EmployeeList = () => {
@@ -14,19 +16,33 @@ const EmployeeList = () => {
 
     const [employees, setEmployees] = useState([]);
 
+    
+
     useEffect(() => {
         const getAllEmployees = async () => {
-            try {
+            
                 const response = await axiosPrivate.get('/api/users/employee');
-
                 setEmployees(response.data.employees);
-            } catch (err) {
-                console.log(err);
-            }
+            
         }
 
         getAllEmployees();
+
     }, [axiosPrivate]);
+
+    const handleEmployeeDelete = async id => {
+        const isConfirmed = window.confirm(`Are you sure that you want to remove this employee?`);
+
+        if(isConfirmed) {
+            try {
+                await axiosPrivate.delete(`/api/users/employee/${id}`);
+                toast.success('Employee removed');
+                setEmployees(employees.filter(e => e._id !== id));
+            } catch (err) {
+                toast.error(err.response.data?.message);
+            }
+        }
+    }
 
     return (
         <div>
@@ -71,9 +87,9 @@ const EmployeeList = () => {
                                     <td><span className={`employee-state-tagger ${e.roles.includes('Admin') ? 'employee-state-tagger-admin' : 'employee-state-tagger-employee'}`}>{e.roles.includes('Admin') ? 'Admin' : 'Employee'}</span></td>
                                     <td>
                                         <div className='d-flex align-items-center gap-2'>
-                                            <button className='btn btn-sm btn-primary'>Sales</button>
+                                            <button className='btn btn-sm btn-primary' onClick={() => navigate(`/dash/admin/employee-management/sales/${e._id}`)}>Sales</button>
                                             <button className='btn btn-sm btn-success' onClick={() => navigate(`/dash/admin/employee-management/add?edit=true&id=${e._id}`)}>Update</button>
-                                            <button className='btn btn-sm btn-danger'>Delete</button>
+                                            <button className='btn btn-sm btn-danger' onClick={() => handleEmployeeDelete(e._id)}>Delete</button>
                                         </div>
                                     </td>
                                 </tr>

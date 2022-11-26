@@ -27,7 +27,12 @@ const useAxiosPrivate = () => {
                     prevRequest.sent = true; // adding a customer property
                     const accessToken = await refresh();
                     prevRequest.headers['Authorization'] = `Bearer ${accessToken}`;
-                    return axiosPrivate(prevRequest);
+                    // return axiosPrivate(prevRequest);
+                    return axiosPrivate({
+                        ...prevRequest,
+                        headers: {...prevRequest.headers, Authorization: `Bearer ${accessToken}`},
+                        sent: true
+                    });
                 }
                 return Promise.reject(error);
             }

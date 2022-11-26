@@ -19,24 +19,54 @@ const useFirestorage = () => {
             }
         }
 
+        const fileNames = [];
 
-
-        let count = 0;
-        let imageUrls = [];
-        for(let item of images) {
+        // just try to improve performance
+        const imagePromises = images.map(img => {
             const fileName = uuidv4();
-            const imageRef = ref(storage, `products/${productId}/${fileName}`);
-            const snapshot = await uploadString(imageRef, item.data_url, 'data_url');
-            const url = await getDownloadURL(snapshot.ref);
-            //setImageUrls(prev => ([...prev, url]));
-            count++;
-            imageUrls.push({fileName, url});
-            if(count === 4) {
-                setUploading(false);
+            fileNames.push(fileName);
+            const imgRef = ref(storage, `/products/${productId}/${fileName}`);
+            return uploadString(imgRef, img.data_url, 'data_url')
+        })
+
+        const imageSnapshots = await Promise.all(imagePromises);
+
+        const imageSnapshotsPromises = imageSnapshots.map(snapshot => {
+            return getDownloadURL(snapshot.ref);
+        })
+
+        let imageUrls = await Promise.all(imageSnapshotsPromises);
+
+        imageUrls = imageUrls.map((url, index) => {
+            return {
+                fileName: fileNames[index],
+                url
             }
-        }
+        })
+
+        setUploading(false);
 
         return imageUrls;
+
+
+
+        // let count = 0;
+        // let imageUrls = [];
+        // for(let item of images) {
+        //     const fileName = uuidv4();
+        //     const imageRef = ref(storage, `products/${productId}/${fileName}`);
+
+        //     const snapshot = await uploadString(imageRef, item.data_url, 'data_url');
+        //     const url = await getDownloadURL(snapshot.ref);
+        //     //setImageUrls(prev => ([...prev, url]));
+        //     count++;
+        //     imageUrls.push({fileName, url});
+        //     if(count === 4) {
+        //         setUploading(false);
+        //     }
+        // }
+
+        // return imageUrls;
 
     }
 

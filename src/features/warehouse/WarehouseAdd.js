@@ -1,4 +1,5 @@
 import {useState, useEffect} from 'react';
+import {useNavigate} from 'react-router-dom';
 import {useSelector} from 'react-redux';
 import {selectAuthUser} from '../../app/auth/authSlice';
 import ImageUploading from "react-images-uploading";
@@ -13,6 +14,7 @@ import '../../styles/warehouse_management/warehouseAdd.css';
 
 const WarehouseAdd = () => {
 
+    const navigate = useNavigate();
     const {roles} = useSelector(selectAuthUser);
 
     const axiosPrivate = useAxiosPrivate();
@@ -155,11 +157,10 @@ const WarehouseAdd = () => {
 
             <aside className='employeeAdd-header'>
                 <h1>Add New Product</h1>
+                <button className='btn btn-primary' onClick={() => navigate(-1)}>Go Back</button>
             </aside>
 
             <hr></hr>
-
-            {/* <button onClick={() => upload(images, '123')}>Upload</button> */}
 
             <form className='mb-5' onSubmit={handleSubmit}>
 

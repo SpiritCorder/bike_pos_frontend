@@ -48,3 +48,10 @@
     width: 100%;
     object-fit: cover;
 }
+
+.dashboard-request-online-service {
+    display: flex;
+    align-items: center;
+    padding: 50px 0;
+    justify-content: flex-end;
+}

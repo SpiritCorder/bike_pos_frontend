@@ -7,7 +7,7 @@ import {useNavigate} from 'react-router-dom';
 // import {AiOutlineLoading3Quarters} from 'react-icons/ai';
 
 
-
+import {MdKeyboardBackspace} from 'react-icons/md';
 
 import '../styles/login.css';
 
@@ -49,6 +49,8 @@ const Login = () => {
         <div className="login w-100 vh-100 d-flex justify-content-center align-items-center">
 
             <Form onSubmit={handleLoginSubmit} className='login-form'>
+
+                <button type='button' className='btn btn-dark btn-sm mb-4'onClick={() => navigate('/')} ><MdKeyboardBackspace /> Go back to landing page</button>
 
                 <h1 className="login-form-title">Login</h1>
 

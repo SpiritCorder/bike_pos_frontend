@@ -197,6 +197,7 @@ const WarehouseUpdate = () => {
 
             <aside className='employeeAdd-header'>
                 <h1>Update Product</h1>
+                <button className='btn btn-primary' onClick={() => navigate(-1)}>Go Back</button>
             </aside>
 
             <hr></hr>
